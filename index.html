@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Plan Fitness — Personalizado</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#FF4D00;--blue:#00C2FF;--yellow:#FFD600;--green:#00FF9D;--pink:#FF2D8A;
+  --bg:#0a0a0a;--bg2:#111;--bg3:#151515;--border:#1e1e1e;--text:#f0f0f0;--muted:#666;--dim:#333;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+h1,h2,h3,.bebas{font-family:'Bebas Neue',Impact,sans-serif;letter-spacing:0.05em}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px}
+
+/* NAV */
+.nav{position:fixed;bottom:0;left:0;right:0;background:#0d0d0d;border-top:1px solid var(--border);display:flex;z-index:100}
+.nav-btn{flex:1;padding:10px 4px 12px;border:none;background:transparent;color:var(--muted);font-size:9px;font-family:'DM Sans',sans-serif;font-weight:600;letter-spacing:0.1em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color 0.2s}
+.nav-btn.active{color:var(--orange)}
+.nav-btn span.ico{font-size:20px}
+
+/* PAGES */
+.page{display:none;padding-bottom:80px;min-height:100vh;animation:fadeIn 0.3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#0a0a0a,#1a0a00,#0a0a0a);border-bottom:2px solid var(--orange);padding:24px 16px 18px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,77,0,0.18) 0%,transparent 70%);pointer-events:none}
+.header-sub{font-size:10px;letter-spacing:0.3em;color:var(--orange);margin-bottom:6px;font-weight:600}
+.header h1{font-size:clamp(34px,9vw,56px);line-height:0.9;color:#fff}
+.header h1 span{color:var(--orange)}
+.header-info{font-size:11px;color:var(--muted);letter-spacing:0.1em;margin-top:8px}
+.macro-bar{display:flex;justify-content:center;gap:16px;margin-top:14px}
+.macro-item{text-align:center}
+.macro-val{font-family:'Bebas Neue',Impact,sans-serif;font-size:22px;line-height:1}
+.macro-lbl{font-size:9px;color:var(--muted);letter-spacing:0.15em;margin-top:1px}
+
+/* SECTION LABEL */
+.sec-lbl{font-size:10px;color:var(--muted);letter-spacing:0.25em;font-weight:700;padding:16px 16px 8px}
+
+/* DAY TABS */
+.day-tabs{display:flex;gap:6px;padding:14px 16px 0;overflow-x:auto;scrollbar-width:none}
+.day-tabs::-webkit-scrollbar{display:none}
+.day-tab{flex:0 0 auto;padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-family:'Bebas Neue',Impact,sans-serif;font-size:14px;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;text-align:center;min-width:55px}
+.day-tab.active{color:#000}
+.day-tab .day-num{font-size:9px;font-family:'DM Sans',sans-serif;margin-top:1px;opacity:0.7}
+
+/* EXERCISE TABLE */
+.ex-table{background:var(--bg2);border-radius:10px;border:1px solid var(--border);overflow:hidden;margin:0 16px}
+.ex-head{display:grid;grid-template-columns:1fr 52px 72px 58px;padding:8px 12px;border-bottom:1px solid var(--border)}
+.ex-head span{font-size:9px;color:var(--dim);letter-spacing:0.15em;font-weight:700}
+.ex-row{display:grid;grid-template-columns:1fr 52px 72px 58px;padding:11px 12px;border-bottom:1px solid #161616;align-items:center;transition:background 0.15s}
+.ex-row:last-child{border-bottom:none}
+.ex-row:hover{background:rgba(255,255,255,0.03)}
+.ex-name{font-size:12px;color:#ddd;font-weight:500}
+.ex-name::before{color:var(--orange);margin-right:6px;font-size:9px;content:'▶'}
+.ex-sets{font-family:'Bebas Neue',Impact,sans-serif;font-size:16px}
+.ex-reps,.ex-rest{font-size:12px;color:#aaa}
+.ex-rest{color:var(--dim)}
+
+/* ABS */
+.abs-block{margin:16px 16px 0;background:linear-gradient(135deg,#1a0500,#0d0d0d);border-radius:10px;overflow:hidden}
+.abs-row{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid rgba(255,77,0,0.1)}
+.abs-row:last-child{border-bottom:none}
+.abs-name{font-size:12px;color:#ddd;font-weight:500}
+.abs-name::before{color:var(--orange);margin-right:8px;content:'◆'}
+.abs-sets{font-family:'Bebas Neue',Impact,sans-serif;font-size:13px}
+
+/* PHASE BANNER */
+.phase-banner{margin:16px;padding:14px;border-radius:10px;border-left:3px solid var(--yellow);background:#0d0d0d}
+.phase-title{font-size:10px;color:var(--yellow);letter-spacing:0.2em;font-weight:700;margin-bottom:6px}
+.phase-text{font-size:12px;color:var(--muted);line-height:1.65;font-weight:300}
+.phase-text strong{color:var(--yellow)}
+
+/* MEAL CARDS */
+.meal-card{background:var(--bg2);border-radius:10px;border:1px solid var(--border);overflow:hidden;margin:0 16px 10px;transition:transform 0.2s}
+.meal-card:hover{transform:translateX(3px)}
+.meal-head{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;border-bottom:1px solid #161616;background:linear-gradient(90deg,#151515,var(--bg2))}
+.meal-icon{font-size:18px;margin-right:10px}
+.meal-title{font-family:'Bebas Neue',Impact,sans-serif;font-size:15px;color:#eee}
+.meal-time{font-size:10px;color:var(--dim);font-weight:300}
+.meal-macros{display:flex;gap:8px;font-size:11px}
+.meal-body{padding:9px 13px 11px}
+.meal-item{font-size:12px;color:var(--muted);padding:3px 0;border-bottom:1px dashed #1a1a1a;font-weight:300}
+.meal-item:last-child{border-bottom:none}
+.meal-item::before{content:'— ';color:var(--dim)}
+
+/* MACROS TOTAL */
+.macros-total{margin:16px;padding:14px;background:linear-gradient(135deg,#1a0500,#0d0d0d);border-radius:10px;border:1px solid rgba(255,77,0,0.3)}
+.macros-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.macro-box{text-align:center}
+.macro-box .val{font-family:'Bebas Neue',Impact,sans-serif;font-size:20px;line-height:1}
+.macro-box .lbl{font-size:9px;color:var(--dim);letter-spacing:0.1em;margin-top:2px}
+.macro-box .sub{font-size:9px;color:var(--dim);margin-top:1px;font-weight:300}
+
+/* SUPPLEMENTS */
+.supp-card{background:var(--bg2);border-radius:10px;border:1px solid var(--border);padding:13px 14px;margin:0 16px 10px}
+.supp-name{font-family:'Bebas Neue',Impact,sans-serif;font-size:16px;margin-bottom:4px}
+.supp-dose{font-size:11px;color:var(--orange);font-weight:600;margin-bottom:4px}
+.supp-desc{font-size:12px;color:var(--muted);line-height:1.55;font-weight:300}
+.supp-badge{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;letter-spacing:0.1em;margin-bottom:6px}
+
+/* DIARY */
+.diary-date{text-align:center;padding:14px 16px 0}
+.diary-date-display{font-family:'Bebas Neue',Impact,sans-serif;font-size:22px;color:var(--orange)}
+.food-input-area{margin:12px 16px 0;background:var(--bg2);border-radius:10px;border:1px solid var(--border);overflow:hidden}
+.food-input-row{display:flex;gap:0}
+.food-input{flex:1;background:transparent;border:none;padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.food-input::placeholder{color:var(--dim)}
+.food-qty{width:70px;background:transparent;border:none;border-left:1px solid var(--border);padding:12px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;text-align:center}
+.food-qty::placeholder{color:var(--dim)}
+.add-food-btn{background:var(--orange);border:none;padding:12px 16px;color:#000;font-family:'Bebas Neue',Impact,sans-serif;font-size:15px;cursor:pointer;letter-spacing:0.05em;transition:background 0.2s}
+.add-food-btn:hover{background:#ff6620}
+
+.food-list{margin:0 16px}
+.food-entry{background:var(--bg2);border-radius:8px;border:1px solid var(--border);padding:10px 13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.food-entry-name{font-size:13px;color:#ddd;font-weight:500}
+.food-entry-macros{font-size:11px;color:var(--muted);margin-top:2px}
+.food-entry-right{display:flex;align-items:center;gap:10px}
+.food-entry-kcal{font-family:'Bebas Neue',Impact,sans-serif;font-size:18px;color:var(--orange)}
+.del-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:2px 4px;transition:color 0.2s}
+.del-btn:hover{color:#ff4444}
+
+.diary-summary{margin:12px 16px 0;background:linear-gradient(135deg,#0d1a00,#0d0d0d);border-radius:10px;border:1px solid rgba(0,255,157,0.2);padding:14px}
+.diary-summary-title{font-size:10px;color:var(--green);letter-spacing:0.2em;font-weight:700;margin-bottom:10px}
+.diary-progress{margin-bottom:8px}
+.diary-progress-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.diary-progress-label span:first-child{color:#aaa;font-weight:500}
+.diary-progress-label span:last-child{color:var(--muted)}
+.progress-bar{height:6px;background:#1e1e1e;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
+
+.diary-note{margin:10px 16px 0;padding:10px 13px;background:#0d0d0d;border-left:3px solid var(--blue);border-radius:0 8px 8px 0;font-size:11px;color:var(--muted);line-height:1.5}
+
+/* WEIGHT */
+.weight-input-area{margin:0 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);overflow:hidden;display:flex}
+.weight-input{flex:1;background:transparent;border:none;padding:14px;color:var(--text);font-family:'Bebas Neue',Impact,sans-serif;font-size:22px;outline:none;text-align:center}
+.weight-input::placeholder{color:var(--dim);font-size:18px}
+.add-weight-btn{background:var(--green);border:none;padding:14px 18px;color:#000;font-family:'Bebas Neue',Impact,sans-serif;font-size:15px;cursor:pointer;letter-spacing:0.05em}
+
+.weight-chart-area{margin:14px 16px 0;background:var(--bg2);border-radius:10px;border:1px solid var(--border);padding:14px;overflow:hidden}
+.chart-title{font-size:10px;color:var(--muted);letter-spacing:0.2em;font-weight:700;margin-bottom:12px}
+canvas#weightChart{width:100%!important;display:block}
+
+.weight-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 16px 0}
+.stat-box{background:var(--bg2);border-radius:8px;border:1px solid var(--border);padding:12px;text-align:center}
+.stat-val{font-family:'Bebas Neue',Impact,sans-serif;font-size:22px;line-height:1}
+.stat-lbl{font-size:9px;color:var(--dim);letter-spacing:0.1em;margin-top:2px}
+
+.weight-history{margin:12px 16px 0}
+.weight-entry{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);margin-bottom:6px}
+.weight-entry-date{font-size:11px;color:var(--muted)}
+.weight-entry-val{font-family:'Bebas Neue',Impact,sans-serif;font-size:18px;color:var(--orange)}
+.weight-entry-diff{font-size:11px;font-weight:600}
+
+/* TIPS */
+.tips-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px}
+.tip-card{background:var(--bg2);border-radius:10px;padding:14px;border:1px solid var(--border);transition:transform 0.2s}
+.tip-card:hover{transform:scale(1.02)}
+.tip-card.full{grid-column:span 2}
+.tip-ico{font-size:22px;margin-bottom:7px}
+.tip-title{font-family:'Bebas Neue',Impact,sans-serif;font-size:14px;margin-bottom:5px}
+.tip-text{font-size:11px;color:var(--muted);line-height:1.6;font-weight:300}
+
+.week-table{margin:0 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);overflow:hidden}
+.week-row{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid #161616}
+.week-row:last-child{border-bottom:none}
+.week-day{font-family:'Bebas Neue',Impact,sans-serif;font-size:13px;width:75px}
+.week-activity{font-size:11px;color:var(--muted);font-weight:300}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;display:none}
+.modal-overlay.open{display:flex}
+.modal{background:#111;border-radius:14px;border:1px solid var(--border);width:100%;max-width:380px;max-height:80vh;overflow-y:auto;padding:20px}
+.modal h3{font-family:'Bebas Neue',Impact,sans-serif;font-size:22px;color:var(--orange);margin-bottom:4px}
+.modal p{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.55}
+.modal-results{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.modal-result{padding:10px 12px;background:#1a1a1a;border-radius:8px;cursor:pointer;transition:background 0.15s;border:1px solid var(--border)}
+.modal-result:hover{background:#222;border-color:var(--orange)}
+.modal-result-name{font-size:13px;color:#ddd;font-weight:600}
+.modal-result-macros{font-size:11px;color:var(--muted);margin-top:2px}
+.modal-close{background:var(--dim);border:none;color:#888;padding:10px;border-radius:8px;width:100%;margin-top:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px}
+
+/* UTILS */
+.badge-essential{background:rgba(0,255,157,0.15);color:var(--green)}
+.badge-recommended{background:rgba(0,194,255,0.15);color:var(--blue)}
+.badge-optional{background:rgba(255,214,0,0.15);color:var(--yellow)}
+.tag{display:inline-block;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:0.1em;margin-bottom:6px}
+.mode-toggle{display:flex;gap:6px;margin:12px 16px 0}
+.mode-btn{flex:1;padding:9px 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-family:"Bebas Neue",Impact,sans-serif;font-size:12px;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;text-align:center}
+.mode-btn.active-gym{background:#FF4D00;color:#000;border-color:#FF4D00}
+.mode-btn.active-home{background:#00C2FF;color:#000;border-color:#00C2FF}
+.mode-btn.active-nogym{background:#FFD600;color:#000;border-color:#FFD600}
+.log-btn{background:var(--bg2);border:1px dashed var(--border);border-radius:6px;color:var(--muted);padding:6px 10px;font-family:"Bebas Neue",Impact,sans-serif;font-size:11px;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.log-btn.logged{background:rgba(0,255,157,0.12);border-color:var(--green);color:var(--green)}
+.ex-row-logged{background:rgba(0,255,157,0.04)!important}
+.home-tip{font-size:10px;color:#555;font-style:italic;margin-top:1px;padding:0 0 6px 18px}
+.nogym-card{background:var(--bg2);border-radius:10px;border:1px solid var(--border);padding:14px;margin:0 16px 10px}
+.nogym-icon{font-size:22px;margin-bottom:7px}
+.nogym-title{font-family:"Bebas Neue",Impact,sans-serif;font-size:15px;margin-bottom:5px;color:#eee}
+.nogym-text{font-size:12px;color:var(--muted);line-height:1.65;font-weight:300}
+</style>
+</head>
+<body>
+
+<!-- PAGE: TRAINING -->
+<div class="page active" id="page-training">
+  <div class="header">
+    <div class="header-sub">PROGRAMA PERSONALIZADO — 12 SEMANAS</div>
+    <h1>CUERPO<br><span>DEFINIDO</span></h1>
+    <div class="header-info">37 AÑOS · 76KG · 1.70M · GIMNASIO · 5 DÍAS/SEMANA</div>
+    <div class="macro-bar">
+      <div class="macro-item"><div class="macro-val" style="color:var(--orange)">150g</div><div class="macro-lbl">PROTEÍNA</div></div>
+      <div class="macro-item"><div class="macro-val" style="color:var(--yellow)">220g</div><div class="macro-lbl">CARBOS</div></div>
+      <div class="macro-item"><div class="macro-val" style="color:var(--blue)">65g</div><div class="macro-lbl">GRASAS</div></div>
+      <div class="macro-item"><div class="macro-val" style="color:var(--green)">~2350</div><div class="macro-lbl">KCAL</div></div>
+    </div>
+  </div>
+
+  <div class="day-tabs" id="dayTabs"></div>
+  <div class="mode-toggle">
+    <button class="mode-btn active-gym" id="btnGym" onclick="setMode('gym')">🏋️ GYM</button>
+    <button class="mode-btn" id="btnHome" onclick="setMode('home')">🏠 CASA</button>
+    <button class="mode-btn" id="btnNoGym" onclick="setMode('nogym')">❌ NO ENTRENÉ</button>
+  </div>
+  <div id="dayContent"></div>
+</div>
+
+<!-- PAGE: NUTRITION -->
+<div class="page" id="page-nutrition">
+  <div class="header">
+    <div class="header-sub">PLAN DE ALIMENTACIÓN</div>
+    <h1>NUTRI<br><span>CIÓN</span></h1>
+    <div class="header-info">DÉFICIT ~350 KCAL · ALTA PROTEÍNA · ANTI-GRASA VISCERAL</div>
+  </div>
+  <div id="nutritionContent"></div>
+</div>
+
+<!-- PAGE: DIARY -->
+<div class="page" id="page-diary">
+  <div class="header">
+    <div class="header-sub">SEGUIMIENTO DIARIO</div>
+    <h1>MI<br><span>DIARIO</span></h1>
+    <div class="header-info">REGISTRÁ TUS COMIDAS Y TU PESO</div>
+  </div>
+
+  <div class="diary-date">
+    <div class="diary-date-display" id="diaryDateDisplay"></div>
+  </div>
+
+  <div class="sec-lbl">🍽️ BUSCAR ALIMENTO</div>
+  <div class="food-input-area">
+    <input class="food-input" id="foodNameInput" type="text" placeholder="Ej: ravioles, asado, banana..." autocomplete="off">
+    <input class="food-qty" id="foodQtyInput" type="number" placeholder="100g" min="1">
+    <button class="add-food-btn" onclick="openFoodSearch()">BUSCAR</button>
+  </div>
+  <div class="diary-note">💡 Más de 150 alimentos incluyendo comidas argentinas. Si no encontrás algo, usá la carga manual.</div>
+
+  <div class="sec-lbl">✏️ CARGA MANUAL (si no está en la base)</div>
+  <div style="margin:0 16px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);padding:13px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <input id="manualName" type="text" placeholder="Nombre (ej: Ravioles con tuco)" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:9px 10px;color:#f0f0f0;font-family:DM Sans,sans-serif;font-size:12px;outline:none;grid-column:span 2" autocomplete="off">
+      <input id="manualKcal" type="number" placeholder="Calorias (kcal)" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:9px 10px;color:#f0f0f0;font-family:DM Sans,sans-serif;font-size:12px;outline:none" min="0">
+      <input id="manualProt" type="number" placeholder="Proteina (g)" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:9px 10px;color:#f0f0f0;font-family:DM Sans,sans-serif;font-size:12px;outline:none" min="0">
+      <input id="manualCarb" type="number" placeholder="Carbos (g)" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:9px 10px;color:#f0f0f0;font-family:DM Sans,sans-serif;font-size:12px;outline:none" min="0">
+      <input id="manualFat" type="number" placeholder="Grasas (g)" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:9px 10px;color:#f0f0f0;font-family:DM Sans,sans-serif;font-size:12px;outline:none" min="0">
+    </div>
+    <button onclick="addManualEntry()" style="width:100%;padding:10px;background:#00FF9D;border:none;border-radius:6px;color:#000;font-family:Bebas Neue,Impact,sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer">+ AGREGAR MANUAL</button>
+    <div style="font-size:10px;color:#444;margin-top:8px;line-height:1.5">Busca los datos en el paquete o en Google: ravioles calorias por 100g</div>
+  </div>
+
+  <div class="sec-lbl">📋 LO QUE COMÍ HOY</div>
+  <div id="foodList" class="food-list"></div>
+
+  <div class="diary-summary">
+    <div class="diary-summary-title">RESUMEN DEL DÍA</div>
+    <div class="diary-progress">
+      <div class="diary-progress-label"><span>CALORÍAS</span><span id="kcalProgress">0 / 2350 kcal</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="kcalBar" style="background:var(--orange);width:0%"></div></div>
+    </div>
+    <div class="diary-progress">
+      <div class="diary-progress-label"><span>PROTEÍNA</span><span id="protProgress">0 / 150g</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="protBar" style="background:var(--orange);width:0%"></div></div>
+    </div>
+    <div class="diary-progress">
+      <div class="diary-progress-label"><span>CARBOHIDRATOS</span><span id="carbProgress">0 / 220g</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="carbBar" style="background:var(--yellow);width:0%"></div></div>
+    </div>
+    <div class="diary-progress">
+      <div class="diary-progress-label"><span>GRASAS</span><span id="fatProgress">0 / 65g</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="fatBar" style="background:var(--blue);width:0%"></div></div>
+    </div>
+  </div>
+  <div style="height:16px"></div>
+</div>
+
+<!-- PAGE: WEIGHT -->
+<div class="page" id="page-weight">
+  <div class="header">
+    <div class="header-sub">SEGUIMIENTO DE PESO</div>
+    <h1>MI<br><span>PESO</span></h1>
+    <div class="header-info">OBJETIVO: LLEGAR A 70–71 KG CON MÁS MÚSCULO</div>
+  </div>
+
+  <div class="sec-lbl">⚖️ REGISTRAR PESO DE HOY</div>
+  <div class="weight-input-area">
+    <input class="weight-input" id="weightInput" type="number" step="0.1" placeholder="76.2 kg" min="40" max="200">
+    <button class="add-weight-btn" onclick="addWeight()">+ GUARDAR</button>
+  </div>
+
+  <div class="weight-stats">
+    <div class="stat-box"><div class="stat-val" id="statCurrent" style="color:var(--orange)">—</div><div class="stat-lbl">ACTUAL</div></div>
+    <div class="stat-box"><div class="stat-val" id="statChange" style="color:var(--green)">—</div><div class="stat-lbl">CAMBIO</div></div>
+    <div class="stat-box"><div class="stat-val" id="statGoal" style="color:var(--yellow)">70.5</div><div class="stat-lbl">OBJETIVO</div></div>
+  </div>
+
+  <div class="weight-chart-area">
+    <div class="chart-title">EVOLUCIÓN DE PESO (KG)</div>
+    <canvas id="weightChart" height="160"></canvas>
+    <div id="noChartMsg" style="text-align:center;color:var(--dim);font-size:12px;padding:20px 0">Registrá tu primer peso para ver el gráfico</div>
+  </div>
+
+  <div class="sec-lbl">📅 HISTORIAL</div>
+  <div id="weightHistory" class="weight-history"></div>
+  <div style="height:16px"></div>
+</div>
+
+<!-- PAGE: TIPS -->
+<div class="page" id="page-tips">
+  <div class="header">
+    <div class="header-sub">GUÍA DE ÉXITO</div>
+    <h1>CLAVES<br><span>Y SUPLEMENTOS</span></h1>
+    <div class="header-info">TODO LO QUE NECESITÁS SABER</div>
+  </div>
+
+  <div class="sec-lbl">💊 SUPLEMENTOS RECOMENDADOS</div>
+  <div id="suppContent"></div>
+
+  <div class="sec-lbl">💡 CLAVES PARA EL ÉXITO</div>
+  <div class="tips-grid" id="tipsContent"></div>
+
+  <div class="sec-lbl">📅 ESTRUCTURA SEMANAL</div>
+  <div class="week-table" id="weekTable"></div>
+
+  <div style="height:16px"></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('training',this)"><span class="ico">🏋️</span>ENTRENO</button>
+  <button class="nav-btn" onclick="showPage('nutrition',this)"><span class="ico">🥩</span>DIETA</button>
+  <button class="nav-btn" onclick="showPage('diary',this)"><span class="ico">📝</span>DIARIO</button>
+  <button class="nav-btn" onclick="showPage('weight',this)"><span class="ico">⚖️</span>PESO</button>
+  <button class="nav-btn" onclick="showPage('tips',this)"><span class="ico">💡</span>CLAVES</button>
+</nav>
+
+<!-- FOOD MODAL -->
+<div class="modal-overlay" id="foodModal">
+  <div class="modal">
+    <h3>BUSCAR ALIMENTO</h3>
+    <p id="modalSearchLabel">Buscando "<span id="modalQuery"></span>"...</p>
+    <div class="modal-results" id="modalResults"></div>
+    <button class="modal-close" onclick="closeModal()">CANCELAR</button>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+const DAYS = [
+  {
+    day:"LUNES", focus:"PECHO + TRÍCEPS", color:"#FF4D00",
+    phase:"⚠️ SEMANAS 1-3: Usá 60-70% del peso máximo. Prioridad: técnica perfecta. 3 series en vez de 4.",
+    exercises:[
+      {name:"Press banca plano",sets:"4",reps:"8-10",rest:"90s"},
+      {name:"Press banca inclinado",sets:"4",reps:"10-12",rest:"75s"},
+      {name:"Aperturas con mancuernas",sets:"3",reps:"12-15",rest:"60s"},
+      {name:"Fondos en paralelas",sets:"3",reps:"10-12",rest:"75s"},
+      {name:"Press francés",sets:"3",reps:"10-12",rest:"60s"},
+      {name:"Extensión tríceps polea",sets:"3",reps:"12-15",rest:"60s"},
+    ],
+    home:[
+      {name:"Push-ups estándar",sets:"5",reps:"12-15",rest:"60s",tip:"Manos al ancho de hombros, pecho toca el suelo"},
+      {name:"Push-ups inclinados (pies elevados)",sets:"4",reps:"10-12",rest:"60s",tip:"Simula el press inclinado, trabaja pecho alto"},
+      {name:"Push-ups diamante",sets:"4",reps:"10-12",rest:"60s",tip:"Manos juntas formando un diamante, enfoca tríceps"},
+      {name:"Fondos entre dos sillas",sets:"4",reps:"12-15",rest:"75s",tip:"Bajá hasta 90° en codos, no más"},
+      {name:"Push-ups declinados (manos elevadas)",sets:"3",reps:"12-15",rest:"60s",tip:"Trabaja la parte baja del pecho"},
+      {name:"Extensión tríceps con silla",sets:"3",reps:"15",rest:"60s",tip:"Apoyá las manos en el borde de una silla firme"},
+    ],
+    abs:[
+      {name:"Plancha frontal",sets:"4×45seg"},
+      {name:"Crunch en polea",sets:"4×15"},
+      {name:"Elevación de piernas colgado",sets:"3×12"},
+    ]
+  },
+  {
+    day:"MARTES", focus:"ESPALDA + BÍCEPS", color:"#00C2FF",
+    phase:"🎯 ENFOQUE: La espalda ancha crea la ilusión de cintura delgada. Clave para tu fisico.",
+    exercises:[
+      {name:"Dominadas lastradas",sets:"4",reps:"6-8",rest:"90s"},
+      {name:"Remo con barra",sets:"4",reps:"8-10",rest:"90s"},
+      {name:"Remo en polea baja",sets:"3",reps:"12-15",rest:"60s"},
+      {name:"Jalón al pecho",sets:"3",reps:"10-12",rest:"75s"},
+      {name:"Curl con barra",sets:"3",reps:"10-12",rest:"60s"},
+      {name:"Curl martillo",sets:"3",reps:"12",rest:"60s"},
+    ],
+    home:[
+      {name:"Dominadas en barra de puerta",sets:"4",reps:"6-10",rest:"90s",tip:"Si no podés, hacé el negativo: subí con ayuda y bajá lento en 5seg"},
+      {name:"Remo invertido bajo mesa",sets:"4",reps:"12-15",rest:"75s",tip:"Acostado bajo una mesa sólida, jalá tu pecho hacia el borde"},
+      {name:"Superman (extensión de espalda)",sets:"4",reps:"15",rest:"60s",tip:"Boca abajo, levantá brazos y piernas simultáneamente"},
+      {name:"Buenos días con peso corporal",sets:"3",reps:"15",rest:"60s",tip:"Manos en nuca, doblá cadera manteniendo espalda recta"},
+      {name:"Curl de bíceps con mochila lastrada",sets:"4",reps:"12",rest:"60s",tip:"Llenás una mochila con libros o botellas de agua"},
+      {name:"Curl martillo con botellas de agua",sets:"3",reps:"15",rest:"60s",tip:"Botellas de 2L = aprox 2kg cada una"},
+    ],
+    abs:[
+      {name:"Rueda abdominal (ab wheel)",sets:"4×10"},
+      {name:"Plancha lateral",sets:"3×40seg c/lado"},
+      {name:"Mountain climbers",sets:"3×30seg"},
+    ]
+  },
+  {
+    day:"MIÉRCOLES", focus:"PIERNAS", color:"#FFD600",
+    phase:"🔥 Las piernas liberan testosterona y GH. No las saltes — aceleran la definición de todo el cuerpo.",
+    exercises:[
+      {name:"Sentadilla con barra",sets:"5",reps:"6-8",rest:"120s"},
+      {name:"Prensa de piernas",sets:"4",reps:"10-12",rest:"90s"},
+      {name:"Extensión de cuádriceps",sets:"3",reps:"12-15",rest:"60s"},
+      {name:"Curl de isquiotibiales",sets:"3",reps:"12-15",rest:"60s"},
+      {name:"Peso muerto rumano",sets:"4",reps:"10",rest:"90s"},
+      {name:"Gemelos de pie",sets:"4",reps:"15-20",rest:"45s"},
+    ],
+    home:[
+      {name:"Sentadilla con peso corporal",sets:"5",reps:"20-25",rest:"60s",tip:"Bajá hasta que muslos queden paralelos al suelo"},
+      {name:"Sentadilla búlgara (pie en silla)",sets:"4",reps:"12 c/lado",rest:"75s",tip:"El pie trasero apoyado en una silla, rodilla delantera sobre el pie"},
+      {name:"Sentadilla sumo",sets:"4",reps:"20",rest:"60s",tip:"Pies bien abiertos, puntas hacia afuera, trabaja aductores"},
+      {name:"Zancadas en el lugar",sets:"4",reps:"12 c/lado",rest:"60s",tip:"Rodilla trasera roza el suelo, torso erguido"},
+      {name:"Puente de glúteos",sets:"4",reps:"20",rest:"45s",tip:"Acostado, pies en el suelo, empujá las caderas hacia arriba"},
+      {name:"Saltos al cajón / sentadilla con salto",sets:"3",reps:"10",rest:"60s",tip:"Reemplaza la prensa y suma cardio"},
+      {name:"Gemelos en escalón",sets:"4",reps:"25",rest:"45s",tip:"Usá el borde de un escalón, bajá el talón bien abajo"},
+    ],
+    abs:[
+      {name:"Dead bug",sets:"3×10 c/lado"},
+      {name:"Hollow body hold",sets:"4×30seg"},
+      {name:"Tijeras",sets:"3×20"},
+    ]
+  },
+  {
+    day:"JUEVES", focus:"HOMBROS + TRAPECIO", color:"#00FF9D",
+    phase:"💪 PRIORIDAD ALTA: Los hombros anchos reducen visualmente la cintura. Crucial para vos.",
+    exercises:[
+      {name:"Press militar con barra",sets:"4",reps:"8-10",rest:"90s"},
+      {name:"Elevaciones laterales",sets:"5",reps:"12-15",rest:"60s"},
+      {name:"Elevaciones frontales",sets:"3",reps:"12",rest:"60s"},
+      {name:"Pájaro con mancuernas",sets:"3",reps:"12-15",rest:"60s"},
+      {name:"Encogimientos de trapecio",sets:"4",reps:"12-15",rest:"60s"},
+      {name:"Face pull en polea",sets:"3",reps:"15",rest:"60s"},
+    ],
+    home:[
+      {name:"Press de hombros con botellas/mochila",sets:"4",reps:"12-15",rest:"75s",tip:"Sentado, empujá hacia arriba con control total"},
+      {name:"Elevaciones laterales con botellas",sets:"5",reps:"15-20",rest:"60s",tip:"Brazos casi rectos, subí hasta altura de hombros"},
+      {name:"Pike push-ups (posición V)",sets:"4",reps:"10-12",rest:"75s",tip:"Cuerpo en V invertida, bajá la cabeza al suelo, trabaja hombros"},
+      {name:"Handstand push-up en pared (asistido)",sets:"3",reps:"6-8",rest:"90s",tip:"Pies contra la pared, bajá la cabeza controlado"},
+      {name:"Encogimientos de hombros con mochila",sets:"4",reps:"15-20",rest:"60s",tip:"Mochila cargada en cada mano o una pesada"},
+      {name:"Elevaciones frontales con botellas",sets:"3",reps:"15",rest:"60s",tip:"Una botella en cada mano, subí al frente hasta altura de hombros"},
+    ],
+    abs:[
+      {name:"V-ups",sets:"4×12"},
+      {name:"Plancha con toque de hombro",sets:"3×10 c/lado"},
+      {name:"Crunch bicicleta",sets:"3×20"},
+    ]
+  },
+  {
+    day:"VIERNES", focus:"FULL BODY + HIIT", color:"#FF2D8A",
+    phase:"🔥 DÍA QUEMAGRASA: Este entreno acelera el metabolismo por 24-48hs. Clave para bajar de 76 a 70.",
+    exercises:[
+      {name:"Peso muerto convencional",sets:"4",reps:"6-8",rest:"120s"},
+      {name:"Burpees",sets:"4",reps:"10",rest:"45s"},
+      {name:"Sentadilla goblet",sets:"3",reps:"15",rest:"60s"},
+      {name:"Push-ups explosivos",sets:"3",reps:"12",rest:"60s"},
+      {name:"Kettlebell swings",sets:"4",reps:"15",rest:"60s"},
+      {name:"Sprint en cinta (30s ON/30s OFF)",sets:"8 rondas",reps:"—",rest:"—"},
+    ],
+    home:[
+      {name:"Burpees",sets:"5",reps:"10",rest:"45s",tip:"El rey del HIIT en casa. Sin excusas."},
+      {name:"Sentadilla con salto",sets:"4",reps:"15",rest:"45s",tip:"Bajá a sentadilla completa, saltá explosivo"},
+      {name:"Mountain climbers rápidos",sets:"4",reps:"30seg",rest:"30s",tip:"Velocidad máxima, core apretado"},
+      {name:"Push-ups explosivos (con palmada)",sets:"3",reps:"10",rest:"60s",tip:"Empujá tan fuerte que las manos se despeguen del suelo"},
+      {name:"Jumping jacks",sets:"4",reps:"30seg",rest:"30s",tip:"Cardio entre ejercicios para mantener FC alta"},
+      {name:"Escalador lateral (lateral mountain climber)",sets:"3",reps:"20 c/lado",rest:"45s",tip:"Rodilla va hacia el codo del mismo lado"},
+      {name:"Sprint en el lugar 20seg ON / 10seg OFF",sets:"8 rondas",reps:"—",rest:"—",tip:"Tabata: intensidad máxima, quema grasa profunda"},
+    ],
+    abs:[
+      {name:"Dragon flag (negativo)",sets:"3×6"},
+      {name:"Windshield wipers colgado",sets:"3×10"},
+      {name:"Plancha con peso en espalda",sets:"3×45seg"},
+    ]
+  }
+];
+
+const NO_GYM_TIPS = {
+  title:"🏠 ¿NO PODÉS IR AL GYM HOY?",
+  sections:[
+    {
+      icon:"💪", title:"Si tenés 30+ minutos",
+      text:"Hacé la rutina de casa de este día. Está diseñada para replicar los mismos grupos musculares sin equipamiento. Buscala tocando el botón CASA en el día correspondiente."
+    },
+    {
+      icon:"⚡", title:"Si tenés 15-20 minutos",
+      text:"Tabata express: elegí 4 ejercicios (burpees, sentadilla con salto, mountain climbers, push-ups). 20seg ON / 10seg OFF, 8 rondas de cada uno. Son 16 minutos y quemás tanto como 40min de cardio suave."
+    },
+    {
+      icon:"🚶", title:"Si solo tenés 10-15 minutos",
+      text:"Caminata rápida 10-15 min + bloque abdominal del día. No es ideal, pero mantiene el hábito y no arruina el progreso. Lo peor que podés hacer es no hacer NADA."
+    },
+    {
+      icon:"😴", title:"Si estás muy cansado o enfermo",
+      text:"DESCANSÁ. El cuerpo se construye en el descanso, no en el gym. Si tenés fiebre, gripe o no dormiste, el entrenamiento hace más mal que bien. Tomá el día libre SIN CULPA y volvé al día siguiente."
+    },
+    {
+      icon:"📅", title:"¿Qué hacer con el día saltado?",
+      text:"Si salteaste un día, NO lo recuperes al día siguiente. Simplemente continuá con el día que sigue en la semana. Tu cuerpo necesita el descanso programado. 1 día perdido no arruina nada."
+    },
+    {
+      icon:"🧘", title:"Descanso activo (sábado/domingo)",
+      text:"Caminata 30-45min a paso moderado, elongación 15min o yoga suave. Esto mejora la recuperación muscular, drena el ácido láctico y mantiene activo el metabolismo sin fatiga adicional."
+    }
+  ]
+};
+
+const MEALS = [
+  {meal:"Desayuno",time:"7:00 AM",icon:"🌅",
+   items:["5 claras de huevo + 1 huevo entero","60g avena cocida con canela","1 banana mediana","Café negro sin azúcar"],
+   macros:{p:32,c:58,g:8}},
+  {meal:"Pre-entreno",time:"10:30 AM",icon:"⚡",
+   items:["150g pechuga de pollo a la plancha","120g arroz blanco cocido","1 manzana o naranja"],
+   macros:{p:38,c:48,g:3}},
+  {meal:"Post-entreno",time:"1:30 PM",icon:"💪",
+   items:["Batido: 30g proteína whey + 250ml leche descremada","1 banana grande","20g mantequilla de maní"],
+   macros:{p:40,c:52,g:10}},
+  {meal:"Almuerzo",time:"3:00 PM",icon:"🥗",
+   items:["180g salmón o atún a la plancha","150g batata al horno","Ensalada grande (espinaca, tomate, pepino)","1 cda aceite de oliva"],
+   macros:{p:42,c:35,g:14}},
+  {meal:"Merienda",time:"6:00 PM",icon:"🫙",
+   items:["200g yogur griego natural 0%","20g granola sin azúcar","Puñado de arándanos"],
+   macros:{p:18,c:25,g:2}},
+  {meal:"Cena",time:"9:00 PM",icon:"🌙",
+   items:["180g pechuga de pavo o pollo al horno","250g brócoli + espárragos salteados","1 cda aceite de oliva","Infusión de té verde"],
+   macros:{p:42,c:10,g:6}},
+];
+
+const SUPPS = [
+  {name:"PROTEÍNA WHEY",badge:"ESENCIAL",badgeClass:"badge-essential",dose:"30-40g post-entreno (ya la tomás ✅)",desc:"Ayuda a recuperar y construir músculo después del entrenamiento. Tomala dentro de los 30 min post-entreno con leche o agua."},
+  {name:"CREATINA",badge:"ESENCIAL",badgeClass:"badge-essential",dose:"5g/día todos los días (ya la tomás ✅)",desc:"Recupera la fuerza y potencia que perdiste en el parón. Tomala siempre a la misma hora, no importa si es día de gym o no. No hace falta carga."},
+  {name:"OMEGA-3",badge:"RECOMENDADO",badgeClass:"badge-recommended",dose:"2-3g/día con el almuerzo o cena",desc:"Reduce la inflamación muscular, mejora la recuperación y ayuda a movilizar grasa visceral. Especialmente útil a los 37 años."},
+  {name:"VITAMINA D3 + K2",badge:"RECOMENDADO",badgeClass:"badge-recommended",dose:"2000-4000 UI/día con una comida",desc:"La mayoría tiene déficit. Optimiza testosterona, sistema inmune y absorción de calcio para los huesos y articulaciones."},
+  {name:"ZINC + MAGNESIO (ZMA)",badge:"RECOMENDADO",badgeClass:"badge-recommended",dose:"Antes de dormir con el estómago vacío",desc:"Mejora la calidad del sueño y la recuperación nocturna. El magnesio reduce el cortisol (la hormona que acumula grasa en el abdomen)."},
+  {name:"COLÁGENO + VIT. C",badge:"OPCIONAL",badgeClass:"badge-optional",dose:"10g colágeno + 500mg Vit C en ayunas",desc:"Protege tendones y articulaciones. Después de meses sin entrenar, son las estructuras más vulnerables a lesiones."},
+];
+
+const TIPS = [
+  {ico:"💧",title:"HIDRATACIÓN",text:"Mínimo 3 litros de agua al día. El agua es clave para la definición y el metabolismo.",full:true},
+  {ico:"😴",title:"SUEÑO",text:"8 horas. Durante el sueño se secreta hormona de crecimiento y se quema grasa."},
+  {ico:"📉",title:"DÉFICIT",text:"~350 kcal/día de déficit. Así perdés grasa sin perder músculo."},
+  {ico:"🔄",title:"PROGRESIÓN",text:"Aumentá peso o reps cada semana. Sin progresión no hay resultados."},
+  {ico:"🚫",title:"EVITÁ",text:"Alcohol, azúcares refinados y carbos simples de noche."},
+  {ico:"📸",title:"MEDITE",text:"Foto cada 2 semanas. La balanza miente; el espejo y la cinta métrica no."},
+];
+
+const WEEK = [
+  {day:"LUNES",activity:"Pecho + Tríceps + Abs",color:"#FF4D00"},
+  {day:"MARTES",activity:"Espalda + Bíceps + Abs",color:"#00C2FF"},
+  {day:"MIÉRCOLES",activity:"Piernas + Abs",color:"#FFD600"},
+  {day:"JUEVES",activity:"Hombros + Trapecio + Abs",color:"#00FF9D"},
+  {day:"VIERNES",activity:"Full Body + HIIT + Abs",color:"#FF2D8A"},
+  {day:"SÁBADO",activity:"Descanso activo — caminata 45 min",color:"#444"},
+  {day:"DOMINGO",activity:"Descanso total + preparar comidas",color:"#333"},
+];
+
+// ===================== FOOD DB (100g base) =====================
+const FOOD_DB = [
+  // === CARNES Y PROTEÍNAS ===
+  {name:"Pechuga de pollo",p:31,c:0,g:3.6},{name:"Muslo de pollo sin piel",p:24,c:0,g:8},{name:"Pollo entero asado",p:25,c:0,g:11},
+  {name:"Pechuga de pavo",p:29,c:0,g:1},{name:"Atún en agua",p:25,c:0,g:1},{name:"Atún en aceite",p:24,c:0,g:8},
+  {name:"Salmón",p:20,c:0,g:13},{name:"Merluza",p:17,c:0,g:2},{name:"Caballa",p:19,c:0,g:12},
+  {name:"Huevo entero",p:13,c:1,g:11},{name:"Clara de huevo",p:11,c:0.7,g:0.2},
+  {name:"Carne vacuna magra (nalga)",p:26,c:0,g:5},{name:"Asado de tira",p:22,c:0,g:18},
+  {name:"Bife de chorizo",p:24,c:0,g:15},{name:"Vacío",p:21,c:0,g:14},{name:"Lomo",p:27,c:0,g:6},
+  {name:"Costilla de cerdo",p:20,c:0,g:20},{name:"Bondiola de cerdo",p:17,c:0,g:22},{name:"Lomo de cerdo",p:22,c:0,g:4},
+  {name:"Milanesa de pollo (sin rebozar)",p:28,c:0,g:5},{name:"Milanesa de carne (rebozada)",p:22,c:14,g:10},
+  {name:"Milanesa napolitana",p:20,c:15,g:16},{name:"Hamburguesa casera (carne)",p:17,c:0,g:14},
+  {name:"Hamburguesa McDonald's simple",p:12,c:26,g:10},{name:"Salchicha frankfurt",p:11,c:2,g:28},
+  {name:"Chorizo criollo",p:14,c:2,g:30},{name:"Morcilla",p:10,c:5,g:28},
+  {name:"Jamón cocido",p:16,c:1,g:4},{name:"Jamón crudo",p:24,c:0,g:8},{name:"Salame",p:18,c:2,g:35},
+  {name:"Sardinas en lata",p:21,c:0,g:10},{name:"Camarón",p:20,c:1,g:1},{name:"Langostinos",p:18,c:1,g:1},
+  // === LÁCTEOS ===
+  {name:"Leche entera",p:3.2,c:4.8,g:3.5},{name:"Leche descremada",p:3.4,c:5,g:0.1},{name:"Leche semidescremada",p:3.3,c:4.8,g:1.5},
+  {name:"Yogur griego 0%",p:10,c:4,g:0},{name:"Yogur natural entero",p:4,c:6,g:3},{name:"Yogur de sabores",p:3,c:16,g:2},
+  {name:"Queso cottage",p:11,c:3,g:4},{name:"Queso mozzarella",p:22,c:2,g:17},{name:"Queso cremoso",p:16,c:2,g:22},
+  {name:"Queso cuartirolo",p:14,c:2,g:20},{name:"Queso parmesano",p:36,c:3,g:26},{name:"Queso pategrás",p:26,c:1,g:24},
+  {name:"Queso de barra light",p:24,c:2,g:10},{name:"Ricota",p:9,c:3,g:8},{name:"Crema de leche",p:2,c:3,g:35},
+  {name:"Dulce de leche",p:6,c:55,g:7},{name:"Manteca",p:0.5,c:0,g:80},{name:"Proteína whey (1 scoop 30g)",p:24,c:3,g:1.5},
+  // === PASTAS Y HARINAS ===
+  {name:"Fideos cocidos (spaghetti)",p:5,c:25,g:1},{name:"Fideos cocidos (moño)",p:5,c:25,g:1},
+  {name:"Ravioles de ricota y espinaca",p:7,c:22,g:5},{name:"Ravioles de carne",p:8,c:21,g:6},
+  {name:"Ñoquis de papa",p:3,c:28,g:1},{name:"Lasagna con carne",p:9,c:16,g:8},
+  {name:"Tallarines con tuco",p:6,c:26,g:4},{name:"Fideos con manteca",p:5,c:27,g:5},
+  {name:"Canelones de ricota",p:8,c:17,g:7},{name:"Sorrentinos de jamón y queso",p:9,c:23,g:7},
+  {name:"Pizza muzzarella (porción)",p:11,c:33,g:10},{name:"Pizza napolitana (porción)",p:10,c:32,g:9},
+  {name:"Empanada de carne al horno",p:8,c:24,g:10},{name:"Empanada de carne frita",p:7,c:22,g:15},
+  {name:"Empanada de jamón y queso",p:9,c:22,g:12},{name:"Empanada de humita",p:5,c:26,g:8},
+  {name:"Empanada de pollo",p:9,c:22,g:9},{name:"Tarta de verdura",p:6,c:20,g:12},
+  {name:"Tarta de jamón y queso",p:9,c:19,g:14},{name:"Medialunas (1 unidad)",p:4,c:22,g:8},
+  {name:"Facturas (1 unidad)",p:3,c:28,g:8},{name:"Pan francés (marraqueta)",p:9,c:50,g:2},
+  {name:"Pan lactal blanco (rebanada)",p:3,c:14,g:1},{name:"Pan lactal integral (rebanada)",p:4,c:12,g:1.5},
+  {name:"Pan integral",p:9,c:41,g:3},{name:"Tostadas (1 unidad)",p:2,c:10,g:1},
+  {name:"Galletitas de agua (4 unid)",p:3,c:22,g:4},{name:"Galletitas dulces (4 unid)",p:2,c:28,g:7},
+  // === SALSAS Y CONDIMENTOS ===
+  {name:"Salsa tuco casera",p:2,c:8,g:3},{name:"Salsa fileto",p:1.5,c:7,g:2},{name:"Salsa bolognesa",p:8,c:6,g:8},
+  {name:"Salsa crema (salsa blanca)",p:3,c:6,g:12},{name:"Pesto",p:5,c:3,g:28},{name:"Ketchup",p:1,c:25,g:0},
+  {name:"Mayonesa",p:1,c:2,g:70},{name:"Mostaza",p:3,c:6,g:3},{name:"Aceite de oliva",p:0,c:0,g:100},
+  {name:"Aceite de girasol",p:0,c:0,g:100},{name:"Vinagre",p:0,c:1,g:0},{name:"Sal",p:0,c:0,g:0},
+  // === CEREALES Y LEGUMBRES ===
+  {name:"Arroz blanco cocido",p:2.7,c:28,g:0.3},{name:"Arroz integral cocido",p:2.6,c:23,g:0.9},
+  {name:"Avena",p:13,c:66,g:7},{name:"Granola sin azúcar",p:10,c:60,g:15},{name:"Granola con azúcar",p:8,c:65,g:10},
+  {name:"Corn flakes",p:7,c:84,g:0.9},{name:"Muesli",p:10,c:60,g:7},
+  {name:"Lentejas cocidas",p:9,c:20,g:0.4},{name:"Garbanzos cocidos",p:9,c:27,g:2.6},
+  {name:"Porotos negros cocidos",p:9,c:23,g:0.4},{name:"Porotos blancos cocidos",p:8,c:23,g:0.5},
+  {name:"Quinoa cocida",p:4,c:21,g:2},{name:"Polenta cocida",p:1.5,c:16,g:0.5},
+  // === VERDURAS Y TUBÉRCULOS ===
+  {name:"Batata cocida",p:1.6,c:20,g:0.1},{name:"Papa cocida",p:1.9,c:17,g:0.1},
+  {name:"Papas fritas (caseras)",p:3,c:33,g:12},{name:"Papas fritas (McDonald's)",p:3,c:36,g:15},
+  {name:"Brócoli",p:2.8,c:7,g:0.4},{name:"Espinaca",p:2.9,c:3.6,g:0.4},{name:"Lechuga",p:1.4,c:2.9,g:0.2},
+  {name:"Tomate",p:0.9,c:3.9,g:0.2},{name:"Pepino",p:0.6,c:3.6,g:0.1},{name:"Zanahoria",p:0.9,c:10,g:0.2},
+  {name:"Zapallo",p:1,c:7,g:0.1},{name:"Zucchini",p:1.2,c:3.1,g:0.3},{name:"Berenjena",p:1,c:6,g:0.2},
+  {name:"Espárragos",p:2.2,c:4,g:0.1},{name:"Coliflor",p:1.9,c:5,g:0.3},{name:"Choclo cocido",p:3.3,c:19,g:1.4},
+  {name:"Remolacha cocida",p:1.7,c:10,g:0.1},{name:"Apio",p:0.7,c:3,g:0.2},{name:"Puerro",p:1.5,c:14,g:0.3},
+  {name:"Cebolla",p:1.1,c:9,g:0.1},{name:"Ajo",p:6,c:33,g:0.5},{name:"Morrón rojo",p:1,c:6,g:0.3},
+  // === FRUTAS ===
+  {name:"Banana",p:1.1,c:23,g:0.3},{name:"Manzana",p:0.3,c:14,g:0.2},{name:"Naranja",p:0.9,c:12,g:0.1},
+  {name:"Pera",p:0.4,c:15,g:0.1},{name:"Uva",p:0.6,c:18,g:0.4},{name:"Durazno",p:0.9,c:10,g:0.3},
+  {name:"Mandarina",p:0.8,c:12,g:0.3},{name:"Limón",p:1.1,c:9,g:0.3},{name:"Kiwi",p:1.1,c:15,g:0.5},
+  {name:"Arándanos",p:0.7,c:14,g:0.3},{name:"Frutilla",p:0.8,c:8,g:0.4},{name:"Sandía",p:0.6,c:8,g:0.2},
+  {name:"Melón",p:0.8,c:8,g:0.2},{name:"Ananá",p:0.5,c:13,g:0.1},{name:"Mango",p:0.8,c:15,g:0.4},
+  // === FRUTOS SECOS Y GRASAS ===
+  {name:"Almendras",p:21,c:22,g:49},{name:"Nueces",p:15,c:14,g:65},{name:"Maní",p:25,c:16,g:49},
+  {name:"Mantequilla de maní",p:25,c:20,g:50},{name:"Castañas de cajú",p:18,c:30,g:44},
+  {name:"Semillas de chía",p:16,c:42,g:31},{name:"Semillas de lino",p:18,c:29,g:42},
+  {name:"Semillas de girasol",p:21,c:20,g:52},{name:"Palta/Aguacate",p:2,c:9,g:15},
+  {name:"Aceite de oliva",p:0,c:0,g:100},{name:"Aceite de coco",p:0,c:0,g:100},
+  {name:"Manteca de maní natural",p:25,c:20,g:50},
+  // === BEBIDAS ===
+  {name:"Café negro",p:0.3,c:0,g:0},{name:"Té verde",p:0,c:0,g:0},{name:"Mate",p:0.5,c:0,g:0},
+  {name:"Jugo de naranja natural",p:0.7,c:10,g:0.2},{name:"Gaseosa cola (lata)",p:0,c:39,g:0},
+  {name:"Gaseosa light",p:0,c:0,g:0},{name:"Agua mineral",p:0,c:0,g:0},
+  {name:"Cerveza (330ml)",p:1,c:13,g:0},{name:"Vino tinto (copa 150ml)",p:0.1,c:4,g:0},
+  // === COMIDAS RÁPIDAS Y SNACKS ===
+  {name:"Empanadas de carne (al horno)",p:8,c:24,g:10},{name:"Lomito completo",p:22,c:40,g:18},
+  {name:"Choripán",p:12,c:35,g:18},{name:"Hotdog con pan",p:10,c:32,g:14},
+  {name:"Sándwich de miga simple",p:8,c:28,g:5},{name:"Tostado de jamón y queso",p:12,c:28,g:10},
+  {name:"Chocolate negro 70%",p:8,c:46,g:43},{name:"Chocolate con leche",p:7,c:57,g:31},
+  {name:"Alfajor simple",p:4,c:52,g:8},{name:"Alfajor triple",p:5,c:60,g:14},
+  {name:"Helado de crema (1 bocha)",p:3,c:23,g:11},{name:"Helado de agua (1 bocha)",p:0,c:25,g:0},
+  {name:"Budín de pan (porción)",p:7,c:40,g:10},{name:"Brownie casero",p:4,c:45,g:18},
+  {name:"Turrón",p:5,c:60,g:15},{name:"Maníes salados",p:24,c:18,g:47},
+  {name:"Pochoclo dulce",p:3,c:65,g:5},{name:"Chips (papas fritas de bolsa)",p:6,c:53,g:30},
+];
+
+// ===================== STATE =====================
+let currentDay = 0;
+let diaryData = JSON.parse(localStorage.getItem('diaryData')||'{}');
+let weightData = JSON.parse(localStorage.getItem('weightData')||'[]');
+let pendingQty = 100;
+
+function today(){ return new Date().toISOString().split('T')[0]; }
+function todayLabel(){
+  const d=new Date();
+  return d.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+
+// ===================== RENDER TRAINING =====================
+function renderTraining(){
+  const tabs=document.getElementById('dayTabs');
+  tabs.innerHTML=DAYS.map((d,i)=>`
+    <div class="day-tab ${i===0?'active':''}" id="tab${i}" onclick="selectDay(${i})" style="${i===0?`background:${d.color};color:#000;border-color:${d.color}`:''}">
+      ${d.day.slice(0,3)}<div class="day-num">${i+1}</div>
+    </div>`).join('');
+  renderDayContent(0);
+}
+
+function selectDay(i){
+  currentDay=i;
+  document.querySelectorAll('.day-tab').forEach((t,j)=>{
+    const d=DAYS[j];
+    if(j===i){t.style.background=d.color;t.style.color='#000';t.style.borderColor=d.color;t.classList.add('active')}
+    else{t.style.background='';t.style.color='';t.style.borderColor='';t.classList.remove('active')}
+  });
+  renderDayContent(i);
+}
+
+let currentMode = 'gym';
+let exerciseLogs = JSON.parse(localStorage.getItem('exerciseLogs')||'{}');
+
+function setMode(mode){
+  currentMode=mode;
+  ['gym','home','nogym'].forEach(m=>{
+    const btn=document.getElementById('btn'+m.charAt(0).toUpperCase()+m.slice(1));
+    btn.className='mode-btn'+(mode===m?' active-'+m:'');
+  });
+  renderDayContent(currentDay);
+}
+
+function toggleExLog(dayIdx, exIdx){
+  const key=today();
+  if(!exerciseLogs[key])exerciseLogs[key]={};
+  const k=dayIdx+'-'+exIdx;
+  exerciseLogs[key][k]=!exerciseLogs[key][k];
+  localStorage.setItem('exerciseLogs',JSON.stringify(exerciseLogs));
+  renderDayContent(dayIdx);
+  renderLogSummary();
+}
+
+function renderLogSummary(){
+  const key=today();
+  const logs=exerciseLogs[key]||{};
+  const done=Object.values(logs).filter(Boolean).length;
+  const el=document.getElementById('logSummary');
+  if(!el)return;
+  el.innerHTML=done===0
+    ?'<span style="color:var(--dim)">Tocá ✓ en cada ejercicio al completarlo</span>'
+    :`<span style="color:var(--green)">✓ ${done} ejercicio${done>1?'s':''} completado${done>1?'s':''} hoy</span>`;
+}
+
+function renderDayContent(i){
+  const d=DAYS[i];
+  const key=today();
+  const logs=exerciseLogs[key]||{};
+  const exList = currentMode==='home' ? (d.home||d.exercises) : d.exercises;
+  const modeLabel = currentMode==='gym'?'GYM':'CASA';
+  const modeColor = currentMode==='home'?'#00C2FF':d.color;
+
+  if(currentMode==='nogym'){
+    document.getElementById('dayContent').innerHTML=`
+      <div class="phase-banner" style="border-color:#FFD600;margin:12px 16px 0">
+        <div class="phase-title" style="color:#FFD600">📌 ${d.day} — ${d.focus}</div>
+        <div class="phase-text">Hoy no podés entrenar. Leé qué hacer según tu situación.</div>
+      </div>
+      ${NO_GYM_TIPS.sections.map(s=>`
+        <div class="nogym-card">
+          <div class="nogym-icon">${s.icon}</div>
+          <div class="nogym-title">${s.title}</div>
+          <div class="nogym-text">${s.text}</div>
+        </div>`).join('')}
+      <div style="height:16px"></div>`;
+    return;
+  }
+
+  document.getElementById('dayContent').innerHTML=`
+    <div class="phase-banner" style="border-color:${d.color}88;margin:12px 16px 0">
+      <div class="phase-title" style="color:${d.color}">📌 NOTA DEL DÍA ${currentMode==='home'?'— VERSIÓN CASA':''}</div>
+      <div class="phase-text">${currentMode==='home'?'💪 Rutina adaptada para casa sin equipamiento. Mismos grupos musculares, mismos resultados con consistencia.':d.phase}</div>
+    </div>
+    <div class="sec-lbl">EJERCICIOS — ${modeLabel}</div>
+    <div style="margin:0 16px 4px;display:flex;justify-content:space-between;align-items:center">
+      <span id="logSummary" style="font-size:11px;color:var(--muted)"></span>
+    </div>
+    <div class="ex-table">
+      <div class="ex-head"><span>EJERCICIO</span><span>SERIES</span><span>REPS</span><span>✓</span></div>
+      ${exList.map((e,j)=>{
+        const done=logs[i+'-'+j];
+        return `<div class="ex-row ${done?'ex-row-logged':''}">
+          <div style="grid-column:span 4;padding-bottom:${e.tip?'2px':'0'}">
+            <div style="display:grid;grid-template-columns:1fr 52px 72px 44px;align-items:center">
+              <div class="ex-name" style="--orange:${modeColor}">${e.name}</div>
+              <div class="ex-sets" style="color:${modeColor}">${e.sets}</div>
+              <div class="ex-reps">${e.reps}</div>
+              <button class="log-btn ${done?'logged':''}" onclick="toggleExLog(${i},${j})">${done?'✓':'○'}</button>
+            </div>
+            ${e.tip?`<div class="home-tip">💡 ${e.tip}</div>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="sec-lbl">🔥 BLOQUE ABDOMINAL — NUNCA SALTEAR</div>
+    <div class="abs-block" style="border:1px solid ${d.color}33">
+      ${d.abs.map(a=>`
+        <div class="abs-row" style="border-color:${d.color}22">
+          <div class="abs-name" style="--orange:${d.color}">${a.name}</div>
+          <div class="abs-sets" style="color:${d.color}">${a.sets}</div>
+        </div>`).join('')}
+    </div>
+    <div class="phase-banner" style="border-color:#FFD600;margin-top:16px">
+      <div class="phase-title">LA VERDAD SOBRE LOS ABDOMINALES</div>
+      <div class="phase-text">Los abdominales se construyen en el gym, pero <strong>se revelan en la cocina.</strong> Con tu porcentaje actual (~22-24% grasa estimado) necesitás bajar a ~12-14% para verlos. El bloque abdominal los fortalece; la dieta y el déficit los descubre.</div>
+    </div>
+    <div style="height:16px"></div>`;
+  renderLogSummary();
+}
+
+// ===================== RENDER NUTRITION =====================
+function renderNutrition(){
+  const total=MEALS.reduce((a,m)=>({p:a.p+m.macros.p,c:a.c+m.macros.c,g:a.g+m.macros.g}),{p:0,c:0,g:0});
+  const kcal=total.p*4+total.c*4+total.g*9;
+  document.getElementById('nutritionContent').innerHTML=`
+    <div style="padding:0 0 8px">
+    ${MEALS.map(m=>`
+      <div class="meal-card">
+        <div class="meal-head">
+          <div style="display:flex;align-items:center">
+            <span class="meal-icon">${m.icon}</span>
+            <div><div class="meal-title">${m.meal.toUpperCase()}</div><div class="meal-time">${m.time}</div></div>
+          </div>
+          <div class="meal-macros">
+            <span style="color:var(--orange)"><b>${m.macros.p}g</b> P</span>
+            <span style="color:var(--yellow)"><b>${m.macros.c}g</b> C</span>
+            <span style="color:var(--blue)"><b>${m.macros.g}g</b> G</span>
+          </div>
+        </div>
+        <div class="meal-body">${m.items.map(i=>`<div class="meal-item">${i}</div>`).join('')}</div>
+      </div>`).join('')}
+    </div>
+    <div class="macros-total">
+      <div style="font-size:10px;color:var(--orange);letter-spacing:0.2em;font-weight:700">RESUMEN MACROS DIARIOS</div>
+      <div class="macros-grid">
+        <div class="macro-box"><div class="val" style="color:var(--orange)">${total.p}g</div><div class="lbl">PROTEÍNA</div><div class="sub">${(total.p*4/kcal*100).toFixed(0)}%</div></div>
+        <div class="macro-box"><div class="val" style="color:var(--yellow)">${total.c}g</div><div class="lbl">CARBOS</div><div class="sub">${(total.c*4/kcal*100).toFixed(0)}%</div></div>
+        <div class="macro-box"><div class="val" style="color:var(--blue)">${total.g}g</div><div class="lbl">GRASAS</div><div class="sub">${(total.g*9/kcal*100).toFixed(0)}%</div></div>
+        <div class="macro-box"><div class="val" style="color:var(--green)">~${kcal}</div><div class="lbl">KCAL</div><div class="sub">déficit ~350</div></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>`;
+}
+
+// ===================== RENDER SUPPS + TIPS =====================
+function renderTips(){
+  document.getElementById('suppContent').innerHTML=SUPPS.map(s=>`
+    <div class="supp-card">
+      <span class="tag ${s.badgeClass}">${s.badge}</span>
+      <div class="supp-name">${s.name}</div>
+      <div class="supp-dose">📌 ${s.dose}</div>
+      <div class="supp-desc">${s.desc}</div>
+    </div>`).join('');
+
+  document.getElementById('tipsContent').innerHTML=TIPS.map(t=>`
+    <div class="tip-card ${t.full?'full':''}">
+      <div class="tip-ico">${t.ico}</div>
+      <div class="tip-title">${t.title}</div>
+      <div class="tip-text">${t.text}</div>
+    </div>`).join('');
+
+  document.getElementById('weekTable').innerHTML=WEEK.map(w=>`
+    <div class="week-row">
+      <div class="week-day" style="color:${w.color}">${w.day}</div>
+      <div class="week-activity">${w.activity}</div>
+    </div>`).join('');
+}
+
+// ===================== DIARY =====================
+function renderDiaryDate(){
+  document.getElementById('diaryDateDisplay').textContent=todayLabel().toUpperCase();
+}
+
+function renderFoodList(){
+  const t=today();
+  const entries=(diaryData[t]||[]);
+  const list=document.getElementById('foodList');
+  if(entries.length===0){
+    list.innerHTML=`<div style="text-align:center;color:var(--dim);font-size:12px;padding:20px 0">Aún no registraste alimentos hoy</div>`;
+  } else {
+    list.innerHTML=entries.map((e,i)=>`
+      <div class="food-entry">
+        <div>
+          <div class="food-entry-name">${e.name}${e.qty?` <span style=\"color:var(--dim);font-size:11px\">(${e.qty}g)</span>`:'<span style=\"color:#555;font-size:10px;margin-left:4px\">✏️</span>'}</div>
+          <div class="food-entry-macros">P: ${e.p}g · C: ${e.c}g · G: ${e.g}g</div>
+        </div>
+        <div class="food-entry-right">
+          <div class="food-entry-kcal">${e.kcal}</div>
+          <button class="del-btn" onclick="deleteFoodEntry(${i})">✕</button>
+        </div>
+      </div>`).join('');
+  }
+  updateDiarySummary();
+}
+
+function updateDiarySummary(){
+  const t=today();
+  const entries=(diaryData[t]||[]);
+  const totals=entries.reduce((a,e)=>({kcal:a.kcal+e.kcal,p:a.p+e.p,c:a.c+e.c,g:a.g+e.g}),{kcal:0,p:0,c:0,g:0});
+  const goals={kcal:2350,p:150,c:220,g:65};
+  document.getElementById('kcalProgress').textContent=`${totals.kcal} / ${goals.kcal} kcal`;
+  document.getElementById('protProgress').textContent=`${totals.p}g / ${goals.p}g`;
+  document.getElementById('carbProgress').textContent=`${totals.c}g / ${goals.c}g`;
+  document.getElementById('fatProgress').textContent=`${totals.g}g / ${goals.g}g`;
+  const pct=(v,max)=>Math.min(100,Math.round(v/max*100));
+  document.getElementById('kcalBar').style.width=pct(totals.kcal,goals.kcal)+'%';
+  document.getElementById('protBar').style.width=pct(totals.p,goals.p)+'%';
+  document.getElementById('carbBar').style.width=pct(totals.c,goals.c)+'%';
+  document.getElementById('fatBar').style.width=pct(totals.g,goals.g)+'%';
+  // color kcal bar
+  const kpct=pct(totals.kcal,goals.kcal);
+  document.getElementById('kcalBar').style.background=kpct>105?'#ff4444':kpct>90?'var(--yellow)':'var(--orange)';
+}
+
+function deleteFoodEntry(i){
+  const t=today();
+  diaryData[t].splice(i,1);
+  localStorage.setItem('diaryData',JSON.stringify(diaryData));
+  renderFoodList();
+}
+
+function openFoodSearch(){
+  const query=document.getElementById('foodNameInput').value.trim();
+  pendingQty=parseFloat(document.getElementById('foodQtyInput').value)||100;
+  if(!query){alert('Escribí el nombre del alimento primero');return;}
+  const results=FOOD_DB.filter(f=>f.name.toLowerCase().includes(query.toLowerCase()));
+  document.getElementById('modalQuery').textContent=query;
+  const container=document.getElementById('modalResults');
+  if(results.length===0){
+    container.innerHTML=`<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px">No encontré "${query}" en la base de datos.<br>Intentá con otro nombre.</div>`;
+  } else {
+    container.innerHTML=results.map((f,i)=>{
+      const ratio=pendingQty/100;
+      const p=Math.round(f.p*ratio);const c=Math.round(f.c*ratio);const g=Math.round(f.g*ratio);
+      const kcal=Math.round((f.p*4+f.c*4+f.g*9)*ratio);
+      return `<div class="modal-result" onclick="addFoodFromDB(${FOOD_DB.indexOf(f)})">
+        <div class="modal-result-name">${f.name} — ${pendingQty}g</div>
+        <div class="modal-result-macros">P: ${p}g · C: ${c}g · G: ${g}g · <b style="color:var(--orange)">${kcal} kcal</b></div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('foodModal').classList.add('open');
+}
+
+function addFoodFromDB(idx){
+  const f=FOOD_DB[idx];
+  const ratio=pendingQty/100;
+  const entry={
+    name:f.name, qty:pendingQty,
+    p:Math.round(f.p*ratio), c:Math.round(f.c*ratio), g:Math.round(f.g*ratio),
+    kcal:Math.round((f.p*4+f.c*4+f.g*9)*ratio)
+  };
+  const t=today();
+  if(!diaryData[t])diaryData[t]=[];
+  diaryData[t].push(entry);
+  localStorage.setItem('diaryData',JSON.stringify(diaryData));
+  document.getElementById('foodNameInput').value='';
+  document.getElementById('foodQtyInput').value='';
+  closeModal();
+  renderFoodList();
+}
+
+function closeModal(){document.getElementById('foodModal').classList.remove('open');}
+
+function addManualEntry(){
+  const name=document.getElementById('manualName').value.trim();
+  const kcal=parseFloat(document.getElementById('manualKcal').value)||0;
+  const p=parseFloat(document.getElementById('manualProt').value)||0;
+  const c=parseFloat(document.getElementById('manualCarb').value)||0;
+  const g=parseFloat(document.getElementById('manualFat').value)||0;
+  if(!name){alert('Escribi el nombre del alimento');return;}
+  if(kcal===0&&p===0&&c===0&&g===0){alert('Ingresa al menos un valor nutricional');return;}
+  const calcKcal=kcal>0?kcal:Math.round(p*4+c*4+g*9);
+  const entry={name:name,qty:null,p:Math.round(p),c:Math.round(c),g:Math.round(g),kcal:calcKcal,manual:true};
+  const t=today();
+  if(!diaryData[t])diaryData[t]=[];
+  diaryData[t].push(entry);
+  localStorage.setItem('diaryData',JSON.stringify(diaryData));
+  document.getElementById('manualName').value='';
+  document.getElementById('manualKcal').value='';
+  document.getElementById('manualProt').value='';
+  document.getElementById('manualCarb').value='';
+  document.getElementById('manualFat').value='';
+  renderFoodList();
+}
+
+// ===================== WEIGHT =====================
+function addWeight(){
+  const val=parseFloat(document.getElementById('weightInput').value);
+  if(!val||val<40||val>200){alert('Ingresá un peso válido (entre 40 y 200 kg)');return;}
+  const entry={date:today(),val:val};
+  // replace today if exists
+  const idx=weightData.findIndex(w=>w.date===today());
+  if(idx>=0)weightData[idx]=entry; else weightData.push(entry);
+  weightData.sort((a,b)=>a.date.localeCompare(b.date));
+  localStorage.setItem('weightData',JSON.stringify(weightData));
+  document.getElementById('weightInput').value='';
+  renderWeight();
+}
+
+function renderWeight(){
+  // stats
+  const cur=weightData.length>0?weightData[weightData.length-1].val:null;
+  const first=weightData.length>0?weightData[0].val:null;
+  document.getElementById('statCurrent').textContent=cur?cur.toFixed(1)+' kg':'—';
+  if(cur&&first&&weightData.length>1){
+    const diff=cur-first;
+    const el=document.getElementById('statChange');
+    el.textContent=(diff>0?'+':'')+diff.toFixed(1)+' kg';
+    el.style.color=diff<=0?'var(--green)':'#ff4444';
+  } else {
+    document.getElementById('statChange').textContent='—';
+  }
+
+  // chart
+  const canvas=document.getElementById('weightChart');
+  const noMsg=document.getElementById('noChartMsg');
+  if(weightData.length<2){noMsg.style.display='block';canvas.style.display='none';return;}
+  noMsg.style.display='none';canvas.style.display='block';
+
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||300;canvas.width=W;canvas.height=160;
+  const vals=weightData.map(w=>w.val);
+  const labels=weightData.map(w=>w.date.slice(5));
+  const minV=Math.min(...vals)-1,maxV=Math.max(...vals)+1;
+  const pad={top:16,right:16,bottom:28,left:36};
+  const chartW=W-pad.left-pad.right,chartH=160-pad.top-pad.bottom;
+  ctx.clearRect(0,0,W,160);
+
+  // grid
+  ctx.strokeStyle='#1e1e1e';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad.top+chartH*(1-i/4);
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+chartW,y);ctx.stroke();
+    const v=(minV+(maxV-minV)*i/4).toFixed(1);
+    ctx.fillStyle='#444';ctx.font='10px DM Sans';ctx.textAlign='right';
+    ctx.fillText(v,pad.left-4,y+3);
+  }
+
+  // goal line
+  const goalY=pad.top+chartH*(1-(70.5-minV)/(maxV-minV));
+  ctx.strokeStyle='rgba(255,214,0,0.4)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(pad.left,goalY);ctx.lineTo(pad.left+chartW,goalY);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#FFD600';ctx.font='9px DM Sans';ctx.textAlign='left';
+  ctx.fillText('OBJETIVO',pad.left+4,goalY-3);
+
+  // line
+  const pts=vals.map((v,i)=>({
+    x:pad.left+i/(vals.length-1)*chartW,
+    y:pad.top+chartH*(1-(v-minV)/(maxV-minV))
+  }));
+  const grad=ctx.createLinearGradient(0,pad.top,0,pad.top+chartH);
+  grad.addColorStop(0,'rgba(255,77,0,0.4)');grad.addColorStop(1,'rgba(255,77,0,0)');
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,pad.top+chartH);ctx.lineTo(pts[0].x,pad.top+chartH);
+  ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle='#FF4D00';ctx.lineWidth=2;ctx.stroke();
+
+  pts.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fillStyle='#FF4D00';ctx.fill();
+    if(labels[i]&&(i===0||i===vals.length-1||vals.length<=7)){
+      ctx.fillStyle='#888';ctx.font='9px DM Sans';ctx.textAlign='center';
+      ctx.fillText(labels[i],p.x,160-pad.bottom+12);
+    }
+  });
+
+  // history
+  const hist=document.getElementById('weightHistory');
+  const sorted=[...weightData].reverse();
+  hist.innerHTML=sorted.map((w,i)=>{
+    const prev=sorted[i+1];
+    const diff=prev?w.val-prev.val:null;
+    const diffStr=diff!==null?`<span class="weight-entry-diff" style="color:${diff<=0?'var(--green)':'#ff4444'}">${diff>0?'+':''}${diff.toFixed(1)}kg</span>`:'<span style="color:var(--dim);font-size:11px">inicio</span>';
+    return `<div class="weight-entry">
+      <div class="weight-entry-date">${w.date}</div>
+      <div style="display:flex;align-items:center;gap:10px">${diffStr}<div class="weight-entry-val">${w.val.toFixed(1)}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== PAGE NAV =====================
+function showPage(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='weight')setTimeout(renderWeight,50);
+}
+
+// ===================== INIT =====================
+renderTraining();
+renderNutrition();
+renderTips();
+renderDiaryDate();
+renderFoodList();
+renderWeight();
+</script>
+</body>
+</html>
